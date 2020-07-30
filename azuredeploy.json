@@ -2,39 +2,35 @@
     "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
     "contentVersion": "1.0.0.0",
     "parameters": {
-        "worker_vm_name": {
+        "VirtualMachineName": {
             "type": "string",
             "defaultValue": "vm-CloudStudio",
             "metadata": {
-				"description": "Local name for the VM. Must be 1-15 characters long. It may not contain \"\/\"'[]:|<>+=;,?*@&\". It can't start with underscore. It can't end with period or hyphen.",
-				"SNC::Parameter::Metadata": {
-					"allowedPattern": "([0-9a-zA-Z_-.]{1,15})",
-					"ConstraintDescription": "Must be 1-15 characters long. It may not contain \"\/\"'[]:|<>+=;,?*@&\". It can't start with underscore. It can't end with period or hyphen."
-				}
+				"description": "Local name for the VM. Must be 1-15 characters long. It may not contain \"\/\"'[]:|<>+=;,?*@&\". It can't start with underscore. It can't end with period or hyphen."
             }
         },
-        "worker_vm_adminUsername": {
+        "AdminUsername": {
             "type": "string",
             "metadata": {
                 "description": "User name for the Virtual Machine."
             },
 			"defaultValue": ""
         },
-        "worker_vm_adminPassword": {
+        "AdminPassword": {
             "type": "securestring",
             "metadata": {
                 "description": "Password for the Virtual Machine."
             },
 			"defaultValue": ""
         },
-        "_artifactsLocation": {
+        "ArtifactsLocation": {
             "type": "string",
             "defaultValue": "https://raw.githubusercontent.com/kphillpotts/CloudStudio/master/",
             "metadata": {
                 "description": "Public URI location of PowerShell Chocolately setup script"
             }
         },
-        "scenesLocation": {
+        "ScenesLocation": {
             "type": "string",
             "defaultValue": "https://raw.githubusercontent.com/kphillpotts/CloudStudio/master/",
             "metadata": {
@@ -54,17 +50,17 @@
 		"worker_dnsprefix": "cloudstudiovm",
 		"worker_nsg_name": "nsg-CloudStudio",
 		"setupChocolateyScriptFileName": "ChocoInstall.ps1",
-		"_artifactsLocationSasToken" : "",
+		"artifactsLocationSasToken" : "",
 		"chocoPackages": "obs-studio;skype",
         "vmImagePublisher": "MicrosoftWindowsDesktop",
         "vmImageOffer": "Windows-10",
         "sku": "rs5-pro",
         "scriptFolder": ".",
-        "setupScriptLocation": "[uri(parameters('_artifactsLocation'),concat(variables('setupChocolateyScriptFileName'),variables('_artifactsLocationSasToken')))]",
-        "bastion-subnet-name": "AzureBastionSubnet",
-        "bastion-host-name": "AzureBastionHost",
-        "public-ip-address-name": "[concat(variables('bastion-host-name'),'-pip')]",
-        "nsg-name": "[concat(variables('bastion-host-name'),'-nsg')]"
+        "setupScriptLocation": "[uri(parameters('ArtifactsLocation'),concat(variables('setupChocolateyScriptFileName'),variables('artifactsLocationSasToken')))]",
+        "bastion-subnet-name": "CloudStudio-BastionSubnet",
+        "bastion-host-name": "CloudStudio-BastionHost",
+        "public-ip-address-name": "[concat('pip-',variables('bastion-host-name'))]",
+        "nsg-name": "[concat('nsg-', variables('bastion-host-name'))]"
     },
     "resources": [
         {
@@ -346,7 +342,7 @@
         {
             "type": "Microsoft.Compute/virtualMachines",
             "apiVersion": "2019-07-01",
-            "name": "[parameters('worker_vm_name')]",
+            "name": "[parameters('VirtualMachineName')]",
             "location": "[variables('location')]",
             "dependsOn": [
                 "[resourceId('Microsoft.Network/networkInterfaces', variables('worker_nic_name'))]"
@@ -364,15 +360,15 @@
                     },
                     "osDisk": {
                         "osType": "Windows",
-                        "name": "[concat(parameters('worker_vm_name'), '_OsDisk')]",
+                        "name": "[concat(parameters('VirtualMachineName'), '_OsDisk')]",
                         "createOption": "FromImage",
                         "caching": "ReadWrite"
                     }
                 },
                 "osProfile": {
-                    "computerName": "[parameters('worker_vm_name')]",
-                    "adminUsername": "[parameters('worker_vm_adminUsername')]",
-                    "adminPassword": "[parameters('worker_vm_adminPassword')]"
+                    "computerName": "[parameters('VirtualMachineName')]",
+                    "adminUsername": "[parameters('AdminUsername')]",
+                    "adminPassword": "[parameters('AdminPassword')]"
                 },
                 "networkProfile": {
                     "networkInterfaces": [
@@ -384,12 +380,12 @@
             }
         },
         {
-            "name": "[concat(parameters('worker_vm_name'),'/GPUDrivers')]",
+            "name": "[concat(parameters('VirtualMachineName'),'/GPUDrivers')]",
             "type": "Microsoft.Compute/virtualMachines/extensions",
             "location": "[variables('location')]",
             "apiVersion": "2019-07-01",
             "dependsOn": [
-                "[resourceId('Microsoft.Compute/virtualMachines/', parameters('worker_vm_name'))]"
+                "[resourceId('Microsoft.Compute/virtualMachines/', parameters('VirtualMachineName'))]"
             ],
             "tags": {
                 "displayName": "gpu-nvidia-drivers"
@@ -404,12 +400,12 @@
             }
         },
         {
-            "name": "[concat(parameters('worker_vm_name'),'/SetupChocolatey')]",
+            "name": "[concat(parameters('VirtualMachineName'),'/SetupChocolatey')]",
             "apiVersion": "2019-07-01",
             "type": "Microsoft.Compute/virtualMachines/extensions",
             "location": "[variables('location')]",
             "dependsOn": [
-                "[resourceId('Microsoft.Compute/virtualMachines/extensions', parameters('worker_vm_name'), 'GPUDrivers')]"
+                "[resourceId('Microsoft.Compute/virtualMachines/extensions', parameters('VirtualMachineName'), 'GPUDrivers')]"
             ],
             "tags": {
                 "displayName": "config-choco"
@@ -423,7 +419,7 @@
                     "fileUris": [
                         "[variables('setupScriptLocation')]"
                     ],
-                    "commandToExecute": "[concat('powershell -ExecutionPolicy bypass -File ', variables('scriptFolder'), '/',variables('setupChocolateyScriptFileName'),' -chocoPackages ',variables('chocoPackages'),' -scenesLocation ',parameters('scenesLocation'))]"
+                    "commandToExecute": "[concat('powershell -ExecutionPolicy bypass -File ', variables('scriptFolder'), '/',variables('setupChocolateyScriptFileName'),' -chocoPackages ',variables('chocoPackages'),' -scenesLocation ', parameters('ScenesLocation'))]"
                 },
                 "protectedSettings": {
                 }
