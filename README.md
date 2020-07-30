@@ -38,9 +38,7 @@ Notes
 
 - Skype - <https://chocolatey.org/packages/skype>
 - OBS Studio - <https://chocolatey.org/packages/obs-studio>
-- NDI Runtime - <https://ndi.tv/tools/> (TODO)
-- OBS-NDI - <https://github.com/Palakis/obs-ndi/releases> (TODO)
-- OBS Websocket - <https://github.com/Palakis/obs-websocket/releases> (TODO)
+
 
 ## Allowed VM sizes in template
 
@@ -70,3 +68,12 @@ Notes
 
 - This script is originally based on the Azure Quickstart Template <https://azure.microsoft.com/en-us/resources/templates/obs-studio-stream-vm-chocolatey/>
 - Much thanks to Simon Lamb <https://github.com/slamb2k> for adding in the Bastion Components
+
+## TODO
+
+- [  ] - Script installation of Snaz for countdown timer <https://github.com/JimmyAppelt/Snaz/releases>
+- [  ] - Script installation of OBS Websocket Plugin <https://github.com/Palakis/obs-websocket/releases>
+- [  ] - Script installation of OBS-NDI Plugin <https://github.com/Palakis/obs-ndi/releases>
+- [  ] - Script installation of NDI Runtime <https://ndi.tv/tools/>
+- [  ] - Update ARM Template to open port for OBS Websocket (with default to 4444)
+- [  ] - Guidance page for configuring settings in OBS
