@@ -57,8 +57,8 @@
         "sku": "rs5-pro",
         "scriptFolder": ".",
         "setupScriptLocation": "[uri(parameters('ArtifactsLocation'),concat(variables('setupChocolateyScriptFileName'),variables('artifactsLocationSasToken')))]",
-        "bastion-subnet-name": "CloudStudio-BastionSubnet",
-        "bastion-host-name": "CloudStudio-BastionHost",
+        "bastion-subnet-name": "snet-cloudstudiobastion",
+        "bastion-host-name": "cloudstudiobastion",
         "public-ip-address-name": "[concat('pip-',variables('bastion-host-name'))]",
         "nsg-name": "[concat('nsg-', variables('bastion-host-name'))]"
     },
