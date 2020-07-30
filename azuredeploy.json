@@ -105,7 +105,7 @@
         },
         "_artifactsLocation": {
             "type": "string",
-            "defaultValue": "https://raw.githubusercontent.com/slamb2k/avocado-streaming/master/",
+            "defaultValue": "https://raw.githubusercontent.com/kphillpotts/CloudStudio/master/",
             "metadata": {
                 "description": "Public uri location of PowerShell Chocolately setup script"
             }
@@ -126,7 +126,7 @@
         },
         "scenesLocation": {
             "type": "string",
-            "defaultValue": "https://raw.githubusercontent.com/slamb2k/avocado-streaming/master/",
+            "defaultValue": "https://raw.githubusercontent.com/kphillpotts/CloudStudio/master/",
             "metadata": {
                 "description": "Public uri location of da place where scenes is at."
             }
