@@ -11,67 +11,49 @@
 
 ## Solution Overview
 
-This template deploys a Windows GPU VM (Windows 10) with OBS Studio, OBS Plugins, Skype, and NDI tools Preinstalled. 
+This template deploys a Windows GPU VM (Windows 10) with OBS Studio, OBS Plugins, Skype, and NDI tools Preinstalled.
 All management of the Streaming VM will be facilitated by Azure Bastion.
 
 ![topology](topology.png)
 
 ## Deployed Resources
 
-Following resources will be created
+The following resources will be created
 
-- Virtual Network
-- Public IP Address with DNS
-- Network Interface
-- Network Security group (with HTTP and SSL port opened)
 - Virtual Machine
+- Network Interface
+- Virtual Network
+- VM public IP address with DNS
+- Network Security group (with HTTP, SSL and OBS web socket ports opened)
 - Azure Bastion
-- Public IP Address with DNS
+- Azure Bastion public IP address with DNS
 
-### Notes
+GPU drivers are installed via NVIDIA extension for Virtual Machines. More details at https://docs.microsoft.com/en-us/azure/virtual-machines/windows/n-series-driver-setup.
 
-* The virtual machine will be deployed into the same region as the resource group specified. Make sure to deploy the resource group into a region supporting NV-Series VMs. You can find a [complete list here](https://azure.microsoft.com/global-infrastructure/services/?products=virtual-machines&regions=non-regional,us-east,us-east-2,us-central,us-north-central,us-south-central,us-west-central,us-west,us-west-2,canada-east,canada-central,europe-north,europe-west,australia-central,australia-central-2,australia-east,australia-southeast,brazil-south,china-non-regional,china-east,china-east-2,china-north,china-north-2,south-africa-north,south-africa-west). By the time of writing, this is the list of supported regions. The ones we actively tested are shown in **bold**.
-    * Australia East
-    * **West Europe**
-    * North Europ
-    * **East US**
-    * East US 2
-    * North Central US
-    * **South Central US**
-    * West US 2
-* GPU drivers installed via NVIDIA extension for Virtual Machine, more details - <https://docs.microsoft.com/en-us/azure/virtual-machines/windows/n-series-driver-setup>
-* Software installation based on custom script extension via chocolatey package manager
-* Other software installed via powershell scripts
+Software installation is based on custom script extension via chocolatey package manager and additional software is installed via powershell scripts.
+
+The virtual machine and all resources will be **deployed into the same region as the resource group** specified. The selection of a different region has no effect on the deployment.
+
+Make sure to deploy the resource group into a region supporting NV-Series VMs. You can find a [complete list here](https://azure.microsoft.com/global-infrastructure/services/?products=virtual-machines&regions=non-regional,us-east,us-east-2,us-central,us-north-central,us-south-central,us-west-central,us-west,us-west-2,canada-east,canada-central,europe-north,europe-west,australia-central,australia-central-2,australia-east,australia-southeast,brazil-south,china-non-regional,china-east,china-east-2,china-north,china-north-2,south-africa-north,south-africa-west). By the time of writing, this is the list of supported regions. The ones we actively tested are shown in **bold**:
+
+* Australia East
+* **West Europe**
+* North Europ
+* **East US**
+* East US 2
+* North Central US
+* **South Central US**
+* West US 2
 
 ## Software preinstalled
 
 - Skype - <https://chocolatey.org/packages/skype>
 - OBS Studio - <https://chocolatey.org/packages/obs-studio>
 
+## How to choose a VM size
 
-## Allowed VM sizes in template
-
-- Standard_NV6_Promo
-- Standard_NV12_Promo
-- Standard_NV24_Promo
-- Standard_NC6_Promo
-- Standard_NC12_Promo
-- Standard_NC24_Promo
-- Standard_NV6
-- Standard_NV12
-- Standard_NV24
-- Standard_NC6
-- Standard_NC12
-- Standard_NC24
-- Standard_NV6s_v2
-- Standard_NV12s_v2
-- Standard_NV24s_v2
-- Standard_NV12s_v3
-- Standard_NV24s_v3
-- Standard_NV48s_v3
-- Standard_NC6
-- Standard_NC12
-- Standard_NC24
+We recommend using a `Standard_NV6` size VM. We found this powerful enough to handle the streaming infrastructure.
+The ARM template allows you to select a different size, if needed.
 
 ## Credits
 
@@ -80,9 +62,10 @@ Following resources will be created
 
 ## TODO
 
-- [  ] - Script installation of Snaz for countdown timer <https://github.com/JimmyAppelt/Snaz/releases>
-- [  ] - Script installation of OBS Websocket Plugin <https://github.com/Palakis/obs-websocket/releases>
-- [  ] - Script installation of OBS-NDI Plugin <https://github.com/Palakis/obs-ndi/releases>
-- [  ] - Script installation of NDI Runtime <https://ndi.tv/tools/>
-- [  ] - Update ARM Template to open port for OBS Websocket (with default to 4444)
-- [  ] - Guidance page for configuring settings in OBS
+- [ ] Script installation of Snaz for countdown timer <https://github.com/JimmyAppelt/Snaz/releases>
+- [ ] Script installation of OBS Websocket Plugin <https://github.com/Palakis/obs-websocket/releases>
+- [ ] Script installation of OBS-NDI Plugin <https://github.com/Palakis/obs-ndi/releases>
+- [ ] Script installation of NDI Runtime <https://ndi.tv/tools/>
+- [x] Update ARM Template to open port for OBS Websocket (with default to 4444)
+- [ ] Guidance page for configuring settings in OBS
+- [ ] Import default scene collection into OBS
