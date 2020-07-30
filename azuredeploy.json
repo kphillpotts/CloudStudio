@@ -4,9 +4,9 @@
     "parameters": {
         "VirtualMachineName": {
             "type": "string",
-            "defaultValue": "vm-CloudStudio",
+            "defaultValue": "CloudStudio",
             "metadata": {
-				"description": "Local name for the VM. Must be 1-15 characters long. It may not contain \"\/\"'[]:|<>+=;,?*@&\". It can't start with underscore. It can't end with period or hyphen."
+				"description": "Local name for the VM. We derive the resource name from this by prefixing it with 'vm-'. We derive the domain name from it by lowercasing the name. Must be 1-15 characters long. Use characters 'A-Z', 'a-z', '0-9' only and start with a non-numeric character. No hyphens, no spaces, no underscores. Maximum 15 characters long."
             }
         },
         "AdminUsername": {
@@ -39,16 +39,17 @@
         }        
     },
     "variables": {
+		"vm_name": "[concat('vm-', parameters('VirtualMachineName'))]",
 		"location": "[resourceGroup().location]",
 		"worker_vmSize": "Standard_NV6",
-		"vnet_name": "vnet-CloudStudio",
+		"vnet_name":  "[concat('vnet-', variables('vm_name'))]",
 		"vnet_ip_prefix": "10.1.0.0/23",
 		"bastion-subnet-ip-prefix": "10.1.1.0/24",
 		"worker-subnet-ip-prefix": "10.1.0.0/24",
-		"worker_nic_name": "nic-CloudStudio",
-		"worker_publicIPAddress_name": "pip-CloudStudio",
-		"worker_dnsprefix": "cloudstudiovm",
-		"worker_nsg_name": "nsg-CloudStudio",
+		"worker_nic_name": "[concat('nic-', variables('vm_name'))]",
+		"worker_publicIPAddress_name": "[concat('pip-', variables('vm_name'))]",
+		"worker_dnsprefix": "[toLower(parameters('VirtualMachineName'))]",
+		"worker_nsg_name": "[concat('nsg-', variables('vm_name'))]",
 		"setupChocolateyScriptFileName": "ChocoInstall.ps1",
 		"artifactsLocationSasToken" : "",
 		"chocoPackages": "obs-studio;skype",
@@ -58,7 +59,7 @@
         "scriptFolder": ".",
         "setupScriptLocation": "[uri(parameters('ArtifactsLocation'),concat(variables('setupChocolateyScriptFileName'),variables('artifactsLocationSasToken')))]",
         "bastion-subnet-name": "AzureBastionSubnet",
-        "bastion-host-name": "cloudstudiobastion",
+        "bastion-host-name": "[concat('bastion-', variables('vm_name'))]",
         "public-ip-address-name": "[concat('pip-',variables('bastion-host-name'))]",
         "nsg-name": "[concat('nsg-', variables('bastion-host-name'))]"
     },
@@ -70,7 +71,7 @@
             "location": "[variables('location')]",
             "properties": {
                 "securityRules": [
-                    {
+					{
                         "name": "HTTP",
                         "properties": {
                             "protocol": "Tcp",
@@ -93,6 +94,19 @@
                             "destinationAddressPrefix": "*",
                             "access": "Allow",
                             "priority": 110,
+                            "direction": "Inbound"
+                        }
+                    },
+					{
+                        "name": "OBS_web_socket",
+                        "properties": {
+                            "protocol": "Tcp",
+                            "sourcePortRange": "*",
+                            "destinationPortRange": "4444",
+                            "sourceAddressPrefix": "Internet",
+                            "destinationAddressPrefix": "*",
+                            "access": "Allow",
+                            "priority": 120,
                             "direction": "Inbound"
                         }
                     }
@@ -342,7 +356,7 @@
         {
             "type": "Microsoft.Compute/virtualMachines",
             "apiVersion": "2019-07-01",
-            "name": "[parameters('VirtualMachineName')]",
+            "name": "[variables('vm_name')]",
             "location": "[variables('location')]",
             "dependsOn": [
                 "[resourceId('Microsoft.Network/networkInterfaces', variables('worker_nic_name'))]"
@@ -360,7 +374,7 @@
                     },
                     "osDisk": {
                         "osType": "Windows",
-                        "name": "[concat(parameters('VirtualMachineName'), '_OsDisk')]",
+                        "name": "[concat(variables('vm_name'), '_OsDisk')]",
                         "createOption": "FromImage",
                         "caching": "ReadWrite"
                     }
@@ -380,12 +394,12 @@
             }
         },
         {
-            "name": "[concat(parameters('VirtualMachineName'),'/GPUDrivers')]",
+            "name": "[concat(variables('vm_name'),'/GPUDrivers')]",
             "type": "Microsoft.Compute/virtualMachines/extensions",
             "location": "[variables('location')]",
             "apiVersion": "2019-07-01",
             "dependsOn": [
-                "[resourceId('Microsoft.Compute/virtualMachines/', parameters('VirtualMachineName'))]"
+                "[resourceId('Microsoft.Compute/virtualMachines/', variables('vm_name'))]"
             ],
             "tags": {
                 "displayName": "gpu-nvidia-drivers"
@@ -400,12 +414,12 @@
             }
         },
         {
-            "name": "[concat(parameters('VirtualMachineName'),'/SetupChocolatey')]",
+            "name": "[concat(variables('vm_name'),'/SetupChocolatey')]",
             "apiVersion": "2019-07-01",
             "type": "Microsoft.Compute/virtualMachines/extensions",
             "location": "[variables('location')]",
             "dependsOn": [
-                "[resourceId('Microsoft.Compute/virtualMachines/extensions', parameters('VirtualMachineName'), 'GPUDrivers')]"
+                "[resourceId('Microsoft.Compute/virtualMachines/extensions', variables('vm_name'), 'GPUDrivers')]"
             ],
             "tags": {
                 "displayName": "config-choco"
