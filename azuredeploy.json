@@ -72,7 +72,7 @@
 		"setupChocolateyScriptFileName": "ChocoInstall.ps1",
 		"setupStreamingToolsFileName": "installtools.ps1",
 		"artifactsLocationSasToken" : "",
-		"chocoPackages": "obs-studio;skype",
+		"chocoPackages": "obs-studio;skype;microsoft-edge",
         "vmImagePublisher": "MicrosoftWindowsDesktop",
         "vmImageOffer": "Windows-10",
         "sku": "rs5-pro",
