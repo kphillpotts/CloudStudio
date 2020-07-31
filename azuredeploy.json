@@ -2,46 +2,27 @@
     "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
     "contentVersion": "1.0.0.0",
     "parameters": {
-        "location": {
+        "VirtualMachineName": {
             "type": "string",
-            "defaultValue": "[resourceGroup().location]",
+            "defaultValue": "CloudStudio",
             "metadata": {
-                "description": "Location of ressources"
+				"description": "Local name for the VM. We derive the resource name from this by prefixing it with 'vm-'. We derive the domain name from it by lowercasing the name. Must be 1-15 characters long. Use characters 'A-Z', 'a-z', '0-9' only and start with a non-numeric character. No hyphens, no spaces, no underscores. Maximum 15 characters long."
             }
         },
-        "worker_vm_name": {
-            "type": "string",
-            "defaultValue": "stream-vm",
-            "metadata": {
-                "description": "Local name for the VM can be whatever you want"
-            }
-        },
-        "worker_vm_adminUsername": {
+		"VirtualMachineSize": {
             "type": "string",
             "metadata": {
-                "description": "User name for the Virtual Machine."
-            }
-        },
-        "worker_vm_adminPassword": {
-            "type": "securestring",
-            "metadata": {
-                "description": "Password for the Virtual Machine."
-            }
-        },
-        "worker_vmSize": {
-            "type": "string",
-            "metadata": {
-                "description": "Desired Size of the VM. Any valid option accepted but if you choose premium storage type you must choose a DS class VM size."
+                "description": "Desired Size of the VM. We recommend Standard_NV6."
             },
             "defaultValue": "Standard_NV6",
             "allowedValues": [
+				"Standard_NV6",
                 "Standard_NV6_Promo",
                 "Standard_NV12_Promo",
                 "Standard_NV24_Promo",
                 "Standard_NC6_Promo",
                 "Standard_NC12_Promo",
                 "Standard_NC24_Promo",
-                "Standard_NV6",
                 "Standard_NV12",
                 "Standard_NV24",
                 "Standard_NC6",
@@ -55,103 +36,68 @@
                 "Standard_NV48s_v3"
             ]
         },
-        "vnet_name": {
-            "defaultValue": "stream-vnet",
-            "type": "string"
-        },
-        "vnet_ip_prefix": {
+        "AdminUsername": {
             "type": "string",
-            "defaultValue": "10.1.0.0/23",
             "metadata": {
-                "description": "IP prefix for available addresses in vnet address space"
-            }
+                "description": "User name for the Virtual Machine."
+            },
+			"defaultValue": ""
         },
-        "bastion-subnet-ip-prefix": {
-            "type": "string",
-            "defaultValue": "10.1.1.0/24",
-            "metadata": {
-                "description": "Bastion subnet IP prefix MUST be within vnet IP prefix address space"
-            }
-        },
-        "worker-subnet-ip-prefix": {
-            "type": "string",
-            "defaultValue": "10.1.0.0/24",
-            "metadata": {
-                "description": "Worker subnet IP prefix MUST be within vnet IP prefix address space"
-            }
-        },
-        "worker_nic_name": {
-            "defaultValue": "stream-nic",
-            "type": "string"
-        },
-        "worker_publicIPAddress_name": {
-            "defaultValue": "stream-ip",
-            "type": "string"
-        },
-        "worker_dnsprefix": {
-            "defaultValue": "streamvm",
-            "type": "string"
-        },
-        "worker_nsg_name": {
-            "defaultValue": "stream-nsg",
-            "type": "string"
-        },
-        "setupChocolateyScriptFileName": {
-            "type": "string",
-            "defaultValue": "ChocoInstall.ps1",
-            "metadata": {
-                "description": "PowerShell script name to execute"
-            }
-        },
-        "_artifactsLocation": {
-            "type": "string",
-            "defaultValue": "https://raw.githubusercontent.com/kphillpotts/CloudStudio/master/",
-            "metadata": {
-                "description": "Public uri location of PowerShell Chocolately setup script"
-            }
-        },
-        "_artifactsLocationSasToken": {
+        "AdminPassword": {
             "type": "securestring",
             "metadata": {
-                "description": "The sasToken required to access _artifactsLocation.  When the template is deployed using the accompanying scripts, a sasToken will be automatically generated. Use the defaultValue if the staging location is not secured."
+                "description": "Password for the Virtual Machine."
             },
-            "defaultValue": ""
+			"defaultValue": ""
         },
-        "chocoPackages": {
-            "type": "string",
-            "defaultValue": "obs-studio;skype",
-            "metadata": {
-                "description": "List of Chocolatey packages to install separated by a semi-colon eg. linqpad;sysinternals"
-            }
-        },
-        "scenesLocation": {
+        "ArtifactsLocation": {
             "type": "string",
             "defaultValue": "https://raw.githubusercontent.com/kphillpotts/CloudStudio/master/",
             "metadata": {
-                "description": "Public uri location of da place where scenes is at."
+                "description": "Public URI location of PowerShell Chocolately setup script"
+            }
+        },
+        "ScenesLocation": {
+            "type": "string",
+            "defaultValue": "https://raw.githubusercontent.com/kphillpotts/CloudStudio/master/",
+            "metadata": {
+                "description": "Public URI location of the OBS scenes."
             }
         }        
     },
     "variables": {
+		"vm_name": "[concat('vm-', parameters('VirtualMachineName'))]",
+		"location": "[resourceGroup().location]",
+		"vnet_name":  "[concat('vnet-', variables('vm_name'))]",
+		"vnet_ip_prefix": "10.1.0.0/23",
+		"bastion-subnet-ip-prefix": "10.1.1.0/24",
+		"worker-subnet-ip-prefix": "10.1.0.0/24",
+		"worker_nic_name": "[concat('nic-', variables('vm_name'))]",
+		"worker_publicIPAddress_name": "[concat('pip-', variables('vm_name'))]",
+		"worker_dnsprefix": "[toLower(parameters('VirtualMachineName'))]",
+		"worker_nsg_name": "[concat('nsg-', variables('vm_name'))]",
+		"setupChocolateyScriptFileName": "ChocoInstall.ps1",
+		"artifactsLocationSasToken" : "",
+		"chocoPackages": "obs-studio;skype",
         "vmImagePublisher": "MicrosoftWindowsDesktop",
         "vmImageOffer": "Windows-10",
         "sku": "rs5-pro",
         "scriptFolder": ".",
-        "setupScriptLocation": "[uri(parameters('_artifactsLocation'),concat(parameters('setupChocolateyScriptFileName'),parameters('_artifactsLocationSasToken')))]",
+        "setupScriptLocation": "[uri(parameters('ArtifactsLocation'),concat(variables('setupChocolateyScriptFileName'),variables('artifactsLocationSasToken')))]",
         "bastion-subnet-name": "AzureBastionSubnet",
-        "bastion-host-name": "AzureBastionHost",
-        "public-ip-address-name": "[concat(variables('bastion-host-name'),'-pip')]",
-        "nsg-name": "[concat(variables('bastion-host-name'),'-nsg')]"
+        "bastion-host-name": "[concat('bastion-', variables('vm_name'))]",
+        "public-ip-address-name": "[concat('pip-',variables('bastion-host-name'))]",
+        "nsg-name": "[concat('nsg-', variables('bastion-host-name'))]"
     },
     "resources": [
         {
             "type": "Microsoft.Network/networkSecurityGroups",
             "apiVersion": "2019-07-01",
-            "name": "[parameters('worker_nsg_name')]",
-            "location": "[parameters('location')]",
+            "name": "[variables('worker_nsg_name')]",
+            "location": "[variables('location')]",
             "properties": {
                 "securityRules": [
-                    {
+					{
                         "name": "HTTP",
                         "properties": {
                             "protocol": "Tcp",
@@ -176,6 +122,19 @@
                             "priority": 110,
                             "direction": "Inbound"
                         }
+                    },
+					{
+                        "name": "OBS_web_socket",
+                        "properties": {
+                            "protocol": "Tcp",
+                            "sourcePortRange": "*",
+                            "destinationPortRange": "4444",
+                            "sourceAddressPrefix": "Internet",
+                            "destinationAddressPrefix": "*",
+                            "access": "Allow",
+                            "priority": 120,
+                            "direction": "Inbound"
+                        }
                     }
                 ]
             }
@@ -184,7 +143,7 @@
             "apiVersion": "2019-11-01",
             "type": "Microsoft.Network/publicIPAddresses",
             "name": "[variables('public-ip-address-name')]",
-            "location": "[parameters('location')]",
+            "location": "[variables('location')]",
             "sku": {
                 "name": "Standard"
             },
@@ -196,7 +155,7 @@
             "apiVersion": "2019-11-01",
             "type": "Microsoft.Network/networkSecurityGroups",
             "name": "[variables('nsg-name')]",
-            "location": "[parameters('location')]",
+            "location": "[variables('location')]",
             "properties": {
                 "securityRules": [
                     {
@@ -276,28 +235,28 @@
         {
             "type": "Microsoft.Network/virtualNetworks/subnets",
             "apiVersion": "2019-07-01",
-            "name": "[concat(parameters('vnet_name'), '/default')]",
+            "name": "[concat(variables('vnet_name'), '/default')]",
             "dependsOn": [
-                "[resourceId('Microsoft.Network/virtualNetworks', parameters('vnet_name'))]"
+                "[resourceId('Microsoft.Network/virtualNetworks', variables('vnet_name'))]"
             ],
             "properties": {
-                "addressPrefix": "[parameters('worker-subnet-ip-prefix')]",
+                "addressPrefix": "[variables('worker-subnet-ip-prefix')]",
                 "privateEndpointNetworkPolicies": "Enabled",
                 "privateLinkServiceNetworkPolicies": "Enabled",
                 "networkSecurityGroup": {
-                    "id": "[resourceId('Microsoft.Network/networkSecurityGroups', parameters('worker_nsg_name'))]"
+                    "id": "[resourceId('Microsoft.Network/networkSecurityGroups', variables('worker_nsg_name'))]"
                 }
             }
         },
         {
             "type": "Microsoft.Network/virtualNetworks/subnets",
             "apiVersion": "2019-07-01",
-            "name": "[concat(parameters('vnet_name'), '/', variables('bastion-subnet-name'))]",
+            "name": "[concat(variables('vnet_name'), '/', variables('bastion-subnet-name'))]",
             "dependsOn": [
-                "[resourceId('Microsoft.Network/virtualNetworks', parameters('vnet_name'))]"
+                "[resourceId('Microsoft.Network/virtualNetworks', variables('vnet_name'))]"
             ],
             "properties": {
-                "addressPrefix": "[parameters('bastion-subnet-ip-prefix')]",
+                "addressPrefix": "[variables('bastion-subnet-ip-prefix')]",
                 "privateEndpointNetworkPolicies": "Enabled",
                 "privateLinkServiceNetworkPolicies": "Enabled",
                 "networkSecurityGroup": {
@@ -308,23 +267,23 @@
         {
             "type": "Microsoft.Network/virtualNetworks",
             "apiVersion": "2019-07-01",
-            "name": "[parameters('vnet_name')]",
-            "location": "[parameters('location')]",
+            "name": "[variables('vnet_name')]",
+            "location": "[variables('location')]",
             "dependsOn": [
                 "[resourceId('Microsoft.Network/networkSecurityGroups', variables('nsg-name'))]",
-                "[resourceId('Microsoft.Network/networkSecurityGroups', parameters('worker_nsg_name'))]"
+                "[resourceId('Microsoft.Network/networkSecurityGroups', variables('worker_nsg_name'))]"
             ],
             "properties": {
                 "addressSpace": {
                     "addressPrefixes": [
-                        "[parameters('vnet_ip_prefix')]"
+                        "[variables('vnet_ip_prefix')]"
                     ]
                 },
                 "subnets": [
                     {
                         "name": "default",
                         "properties": {
-                            "addressPrefix": "[parameters('worker-subnet-ip-prefix')]",
+                            "addressPrefix": "[variables('worker-subnet-ip-prefix')]",
                             "privateEndpointNetworkPolicies": "Enabled",
                             "privateLinkServiceNetworkPolicies": "Enabled"
                         }
@@ -332,7 +291,7 @@
                     {
                         "name": "[variables('bastion-subnet-name')]",
                         "properties": {
-                            "addressPrefix": "[parameters('bastion-subnet-ip-prefix')]",
+                            "addressPrefix": "[variables('bastion-subnet-ip-prefix')]",
                             "networkSecurityGroup": {
                                 "id": "[resourceId('Microsoft.Network/networkSecurityGroups', variables('nsg-name'))]"
                             }
@@ -347,11 +306,11 @@
             "apiVersion": "2019-07-01",
             "type": "Microsoft.Network/bastionHosts",
             "name": "[variables('bastion-host-name')]",
-            "location": "[parameters('location')]",
+            "location": "[variables('location')]",
             "dependsOn": [
                 "[resourceId('Microsoft.Network/publicIpAddresses', variables('public-ip-address-name'))]",
-                "[resourceId('Microsoft.Network/virtualNetworks', parameters('vnet_name'))]",
-                "[resourceId('Microsoft.Network/virtualNetworks/subnets', parameters('vnet_name'), variables('bastion-subnet-name'))]"
+                "[resourceId('Microsoft.Network/virtualNetworks', variables('vnet_name'))]",
+                "[resourceId('Microsoft.Network/virtualNetworks/subnets', variables('vnet_name'), variables('bastion-subnet-name'))]"
             ],
             "properties": {
                 "ipConfigurations": [
@@ -359,7 +318,7 @@
                         "name": "IpConf",
                         "properties": {
                             "subnet": {
-                                "id": "[resourceId('Microsoft.Network/virtualNetworks/subnets', parameters('vnet_name'), variables('bastion-subnet-name'))]"
+                                "id": "[resourceId('Microsoft.Network/virtualNetworks/subnets', variables('vnet_name'), variables('bastion-subnet-name'))]"
                             },
                             "publicIPAddress": {
                                 "id": "[resourceId('Microsoft.Network/publicIpAddresses', variables('public-ip-address-name'))]"
@@ -372,8 +331,8 @@
         {
             "type": "Microsoft.Network/publicIPAddresses",
             "apiVersion": "2019-07-01",
-            "name": "[parameters('worker_publicIPAddress_name')]",
-            "location": "[parameters('location')]",
+            "name": "[variables('worker_publicIPAddress_name')]",
+            "location": "[variables('location')]",
             "sku": {
                 "name": "Basic"
             },
@@ -382,18 +341,18 @@
                 "publicIPAllocationMethod": "Dynamic",
                 "idleTimeoutInMinutes": 4,
                 "dnsSettings": {
-                    "domainNameLabel": "[parameters('worker_dnsprefix')]"
+                    "domainNameLabel": "[variables('worker_dnsprefix')]"
                 }
             }
         },
         {
             "type": "Microsoft.Network/networkInterfaces",
             "apiVersion": "2019-07-01",
-            "name": "[parameters('worker_nic_name')]",
-            "location": "[parameters('location')]",
+            "name": "[variables('worker_nic_name')]",
+            "location": "[variables('location')]",
             "dependsOn": [
-                "[resourceId('Microsoft.Network/publicIPAddresses', parameters('worker_publicIPAddress_name'))]",
-                "[resourceId('Microsoft.Network/virtualNetworks/subnets', parameters('vnet_name'), 'default')]"
+                "[resourceId('Microsoft.Network/publicIPAddresses', variables('worker_publicIPAddress_name'))]",
+                "[resourceId('Microsoft.Network/virtualNetworks/subnets', variables('vnet_name'), 'default')]"
             ],
             "properties": {
                 "ipConfigurations": [
@@ -403,10 +362,10 @@
                             "privateIPAddress": "10.0.4.4",
                             "privateIPAllocationMethod": "Dynamic",
                             "publicIPAddress": {
-                                "id": "[resourceId('Microsoft.Network/publicIPAddresses', parameters('worker_publicIPAddress_name'))]"
+                                "id": "[resourceId('Microsoft.Network/publicIPAddresses', variables('worker_publicIPAddress_name'))]"
                             },
                             "subnet": {
-                                "id": "[resourceId('Microsoft.Network/virtualNetworks/subnets', parameters('vnet_name'), 'default')]"
+                                "id": "[resourceId('Microsoft.Network/virtualNetworks/subnets', variables('vnet_name'), 'default')]"
                             },
                             "primary": true,
                             "privateIPAddressVersion": "IPv4"
@@ -416,21 +375,21 @@
                 "enableAcceleratedNetworking": false,
                 "enableIPForwarding": false,
                 "networkSecurityGroup": {
-                    "id": "[resourceId('Microsoft.Network/networkSecurityGroups', parameters('worker_nsg_name'))]"
+                    "id": "[resourceId('Microsoft.Network/networkSecurityGroups', variables('worker_nsg_name'))]"
                 }
             }
         },
         {
             "type": "Microsoft.Compute/virtualMachines",
             "apiVersion": "2019-07-01",
-            "name": "[parameters('worker_vm_name')]",
-            "location": "[parameters('location')]",
+            "name": "[variables('vm_name')]",
+            "location": "[variables('location')]",
             "dependsOn": [
-                "[resourceId('Microsoft.Network/networkInterfaces', parameters('worker_nic_name'))]"
+                "[resourceId('Microsoft.Network/networkInterfaces', variables('worker_nic_name'))]"
             ],
             "properties": {
                 "hardwareProfile": {
-                    "vmSize": "[parameters('worker_vmSize')]"
+                    "vmSize": "[parameters('VirtualMachineSize')]"
                 },
                 "storageProfile": {
                     "imageReference": {
@@ -441,32 +400,32 @@
                     },
                     "osDisk": {
                         "osType": "Windows",
-                        "name": "[concat(parameters('worker_vm_name'), '_OsDisk')]",
+                        "name": "[concat(variables('vm_name'), '_OsDisk')]",
                         "createOption": "FromImage",
                         "caching": "ReadWrite"
                     }
                 },
                 "osProfile": {
-                    "computerName": "[parameters('worker_vm_name')]",
-                    "adminUsername": "[parameters('worker_vm_adminUsername')]",
-                    "adminPassword": "[parameters('worker_vm_adminPassword')]"
+                    "computerName": "[parameters('VirtualMachineName')]",
+                    "adminUsername": "[parameters('AdminUsername')]",
+                    "adminPassword": "[parameters('AdminPassword')]"
                 },
                 "networkProfile": {
                     "networkInterfaces": [
                         {
-                            "id": "[resourceId('Microsoft.Network/networkInterfaces', parameters('worker_nic_name'))]"
+                            "id": "[resourceId('Microsoft.Network/networkInterfaces', variables('worker_nic_name'))]"
                         }
                     ]
                 }
             }
         },
         {
-            "name": "[concat(parameters('worker_vm_name'),'/GPUDrivers')]",
+            "name": "[concat(variables('vm_name'),'/GPUDrivers')]",
             "type": "Microsoft.Compute/virtualMachines/extensions",
-            "location": "[parameters('location')]",
+            "location": "[variables('location')]",
             "apiVersion": "2019-07-01",
             "dependsOn": [
-                "[resourceId('Microsoft.Compute/virtualMachines/', parameters('worker_vm_name'))]"
+                "[resourceId('Microsoft.Compute/virtualMachines/', variables('vm_name'))]"
             ],
             "tags": {
                 "displayName": "gpu-nvidia-drivers"
@@ -481,12 +440,12 @@
             }
         },
         {
-            "name": "[concat(parameters('worker_vm_name'),'/SetupChocolatey')]",
+            "name": "[concat(variables('vm_name'),'/SetupChocolatey')]",
             "apiVersion": "2019-07-01",
             "type": "Microsoft.Compute/virtualMachines/extensions",
-            "location": "[parameters('location')]",
+            "location": "[variables('location')]",
             "dependsOn": [
-                "[resourceId('Microsoft.Compute/virtualMachines/extensions', parameters('worker_vm_name'), 'GPUDrivers')]"
+                "[resourceId('Microsoft.Compute/virtualMachines/extensions', variables('vm_name'), 'GPUDrivers')]"
             ],
             "tags": {
                 "displayName": "config-choco"
@@ -500,7 +459,7 @@
                     "fileUris": [
                         "[variables('setupScriptLocation')]"
                     ],
-                    "commandToExecute": "[concat('powershell -ExecutionPolicy bypass -File ', variables('scriptFolder'), '/',parameters('setupChocolateyScriptFileName'),' -chocoPackages ',parameters('chocoPackages'),' -scenesLocation ',parameters('scenesLocation'))]"
+                    "commandToExecute": "[concat('powershell -ExecutionPolicy bypass -File ', variables('scriptFolder'), '/',variables('setupChocolateyScriptFileName'),' -chocoPackages ',variables('chocoPackages'),' -scenesLocation ', parameters('ScenesLocation'))]"
                 },
                 "protectedSettings": {
                 }
