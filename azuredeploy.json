@@ -445,7 +445,7 @@
                 "autoUpgradeMinorVersion": true,
                 "settings": {
                     "fileUris": [
-                        "[parameters('PostDeploymentScriptUri')]"
+						"[uri(parameters('PostDeploymentScriptUri'), 'PostDeployment.ps1')]"
                     ],
 					"commandToExecute": "powershell -ExecutionPolicy bypass -File ./PostDeployment.ps1"
                
