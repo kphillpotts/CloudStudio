@@ -70,13 +70,15 @@
 		"worker_dnsprefix": "[toLower(parameters('VirtualMachineName'))]",
 		"worker_nsg_name": "[concat('nsg-', variables('vm_name'))]",
 		"setupChocolateyScriptFileName": "ChocoInstall.ps1",
+		"setupStreamingToolsFileName": "installtools.ps1",
 		"artifactsLocationSasToken" : "",
 		"chocoPackages": "obs-studio;skype",
         "vmImagePublisher": "MicrosoftWindowsDesktop",
         "vmImageOffer": "Windows-10",
         "sku": "rs5-pro",
         "scriptFolder": ".",
-        "setupScriptLocation": "[uri(parameters('ArtifactsLocation'),concat(variables('setupChocolateyScriptFileName'),variables('artifactsLocationSasToken')))]",
+        "setupChocolateyScriptLocation": "[uri(parameters('ArtifactsLocation'),concat(variables('setupChocolateyScriptFileName'),variables('artifactsLocationSasToken')))]",
+		"setupStreamingToolsScriptLocation": "[uri(parameters('ArtifactsLocation'),concat(variables('setupStreamingToolsFileName'),variables('artifactsLocationSasToken')))]",
         "bastion-subnet-name": "AzureBastionSubnet",
         "bastion-host-name": "[concat('bastion-', variables('vm_name'))]",
         "public-ip-address-name": "[concat('pip-',variables('bastion-host-name'))]",
@@ -450,9 +452,35 @@
                 "autoUpgradeMinorVersion": true,
                 "settings": {
                     "fileUris": [
-                        "[variables('setupScriptLocation')]"
+                        "[variables('setupChocolateyScriptLocation')]"
                     ],
                     "commandToExecute": "[concat('powershell -ExecutionPolicy bypass -File ', variables('scriptFolder'), '/',variables('setupChocolateyScriptFileName'),' -chocoPackages ',variables('chocoPackages'))]"
+                },
+                "protectedSettings": {
+                }
+            }
+        },
+		{
+            "name": "[concat(variables('vm_name'),'/InstallStreamingTools')]",
+            "apiVersion": "2019-07-01",
+            "type": "Microsoft.Compute/virtualMachines/extensions",
+            "location": "[variables('location')]",
+            "dependsOn": [
+                "[resourceId('Microsoft.Compute/virtualMachines/extensions', variables('vm_name'), 'SetupChocolatey')]"
+            ],
+            "tags": {
+                "displayName": "install-streaming-tools"
+            },
+            "properties": {
+                "publisher": "Microsoft.Compute",
+                "type": "CustomScriptExtension",
+                "typeHandlerVersion": "1.10",
+                "autoUpgradeMinorVersion": true,
+                "settings": {
+                    "fileUris": [
+                        "[variables('setupStreamingToolsScriptLocation')]"
+                    ],
+                    "commandToExecute": "[concat('powershell -ExecutionPolicy bypass -File ', variables('scriptFolder'), '/',variables('setupStreamingToolsFileName'))]"
                 },
                 "protectedSettings": {
                 }

@@ -6,7 +6,7 @@ Write-Host "File packages URL: $linktopackages"
 #Changing ExecutionPolicy
 Set-ExecutionPolicy -ExecutionPolicy Bypass -Scope Process -Force
 
-#Change securoty protocol
+#Change security protocol
 [System.Net.ServicePointManager]::SecurityProtocol = [System.Net.ServicePointManager]::SecurityProtocol -bor 3072
 
 # Install Choco
