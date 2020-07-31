@@ -50,11 +50,11 @@
             },
 			"defaultValue": ""
         },
-        "ArtifactsLocation": {
+        "PostDeploymentCustomScript": {
             "type": "string",
-            "defaultValue": "https://raw.githubusercontent.com/kphillpotts/CloudStudio/master/",
+            "defaultValue": "https://raw.githubusercontent.com/kphillpotts/CloudStudio/master/PostDeployment.ps1",
             "metadata": {
-                "description": "Public URI location of PowerShell Chocolately setup script"
+                "description": "Public URI location of a PowerShell (.ps1) script to execute after deployment. This installs Chocolatey, Skype, Edge, OBS, ..."
             }
         }
     },
@@ -69,16 +69,9 @@
 		"worker_publicIPAddress_name": "[concat('pip-', variables('vm_name'))]",
 		"worker_dnsprefix": "[toLower(parameters('VirtualMachineName'))]",
 		"worker_nsg_name": "[concat('nsg-', variables('vm_name'))]",
-		"setupChocolateyScriptFileName": "ChocoInstall.ps1",
-		"setupStreamingToolsFileName": "installtools.ps1",
-		"artifactsLocationSasToken" : "",
-		"chocoPackages": "obs-studio;skype;microsoft-edge",
-        "vmImagePublisher": "MicrosoftWindowsDesktop",
+		"vmImagePublisher": "MicrosoftWindowsDesktop",
         "vmImageOffer": "Windows-10",
         "sku": "rs5-pro",
-        "scriptFolder": ".",
-        "setupChocolateyScriptLocation": "[uri(parameters('ArtifactsLocation'),concat(variables('setupChocolateyScriptFileName'),variables('artifactsLocationSasToken')))]",
-		"setupStreamingToolsScriptLocation": "[uri(parameters('ArtifactsLocation'),concat(variables('setupStreamingToolsFileName'),variables('artifactsLocationSasToken')))]",
         "bastion-subnet-name": "AzureBastionSubnet",
         "bastion-host-name": "[concat('bastion-', variables('vm_name'))]",
         "public-ip-address-name": "[concat('pip-',variables('bastion-host-name'))]",
@@ -435,7 +428,7 @@
             }
         },
         {
-            "name": "[concat(variables('vm_name'),'/SetupChocolatey')]",
+			"name": "[concat(variables('vm_name'),'/PostDeploymentScript')]",
             "apiVersion": "2019-07-01",
             "type": "Microsoft.Compute/virtualMachines/extensions",
             "location": "[variables('location')]",
@@ -443,7 +436,7 @@
                 "[resourceId('Microsoft.Compute/virtualMachines/extensions', variables('vm_name'), 'GPUDrivers')]"
             ],
             "tags": {
-                "displayName": "config-choco"
+                "displayName": "post-deployment-script"
             },
             "properties": {
                 "publisher": "Microsoft.Compute",
@@ -452,35 +445,9 @@
                 "autoUpgradeMinorVersion": true,
                 "settings": {
                     "fileUris": [
-                        "[variables('setupChocolateyScriptLocation')]"
+                        "[parameters('PostDeploymentCustomScript')]"
                     ],
-                    "commandToExecute": "[concat('powershell -ExecutionPolicy bypass -File ', variables('scriptFolder'), '/',variables('setupChocolateyScriptFileName'),' -chocoPackages ',variables('chocoPackages'))]"
-                },
-                "protectedSettings": {
-                }
-            }
-        },
-		{
-            "name": "[concat(variables('vm_name'),'/InstallStreamingTools')]",
-            "apiVersion": "2019-07-01",
-            "type": "Microsoft.Compute/virtualMachines/extensions",
-            "location": "[variables('location')]",
-            "dependsOn": [
-                "[resourceId('Microsoft.Compute/virtualMachines/extensions', variables('vm_name'), 'SetupChocolatey')]"
-            ],
-            "tags": {
-                "displayName": "install-streaming-tools"
-            },
-            "properties": {
-                "publisher": "Microsoft.Compute",
-                "type": "CustomScriptExtension",
-                "typeHandlerVersion": "1.10",
-                "autoUpgradeMinorVersion": true,
-                "settings": {
-                    "fileUris": [
-                        "[variables('setupStreamingToolsScriptLocation')]"
-                    ],
-                    "commandToExecute": "[concat('powershell -ExecutionPolicy bypass -File ', variables('scriptFolder'), '/',variables('setupStreamingToolsFileName'))]"
+                    "commandToExecute": "[concat('powershell -ExecutionPolicy bypass -File ', parameters('PostDeploymentCustomScript'))]"
                 },
                 "protectedSettings": {
                 }
