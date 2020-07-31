@@ -56,14 +56,7 @@
             "metadata": {
                 "description": "Public URI location of PowerShell Chocolately setup script"
             }
-        },
-        "ScenesLocation": {
-            "type": "string",
-            "defaultValue": "https://raw.githubusercontent.com/kphillpotts/CloudStudio/master/",
-            "metadata": {
-                "description": "Public URI location of the OBS scenes."
-            }
-        }        
+        }
     },
     "variables": {
 		"vm_name": "[concat('vm-', parameters('VirtualMachineName'))]",
@@ -459,7 +452,7 @@
                     "fileUris": [
                         "[variables('setupScriptLocation')]"
                     ],
-                    "commandToExecute": "[concat('powershell -ExecutionPolicy bypass -File ', variables('scriptFolder'), '/',variables('setupChocolateyScriptFileName'),' -chocoPackages ',variables('chocoPackages'),' -scenesLocation ', parameters('ScenesLocation'))]"
+                    "commandToExecute": "[concat('powershell -ExecutionPolicy bypass -File ', variables('scriptFolder'), '/',variables('setupChocolateyScriptFileName'),' -chocoPackages ',variables('chocoPackages'))]"
                 },
                 "protectedSettings": {
                 }

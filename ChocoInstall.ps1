@@ -1,6 +1,5 @@
 #Script based on https://raw.githubusercontent.com/Azure/azure-quickstart-templates/master/visual-studio-dev-vm-chocolatey/scripts/SetupChocolatey.ps1
 param([Parameter(Mandatory=$true)][string]$chocoPackages)
-param([Parameter(Mandatory=$true)][string]$ScenesLocation)
 
 Write-Host "File packages URL: $linktopackages"
 
@@ -21,7 +20,5 @@ Invoke-Command -ScriptBlock $sb
 $chocoPackages.Split(";") | ForEach {
     choco install $_ -y -force
 }
-
-# Use ScenesLocation like a boss
 
 Write-Host "Packages from choco.org were installed"
