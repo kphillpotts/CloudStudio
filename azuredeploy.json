@@ -50,11 +50,11 @@
             },
 			"defaultValue": ""
         },
-        "PostDeploymentCustomScript": {
+        "PostDeploymentScriptUri": {
             "type": "string",
-            "defaultValue": "https://raw.githubusercontent.com/kphillpotts/CloudStudio/master/PostDeployment.ps1",
+            "defaultValue": "https://raw.githubusercontent.com/kphillpotts/CloudStudio/master/",
             "metadata": {
-                "description": "Public URI location of a PowerShell (.ps1) script to execute after deployment. This installs Chocolatey, Skype, Edge, OBS, ..."
+                "description": "Public URI location of the PostDeployment.ps1 script to execute after deployment. This installs Chocolatey, Skype, Edge, OBS, ..."
             }
         }
     },
@@ -445,9 +445,10 @@
                 "autoUpgradeMinorVersion": true,
                 "settings": {
                     "fileUris": [
-                        "[parameters('PostDeploymentCustomScript')]"
+                        "[parameters('PostDeploymentScriptUri')]"
                     ],
-                    "commandToExecute": "[concat('powershell -ExecutionPolicy bypass -File ', parameters('PostDeploymentCustomScript'))]"
+					"commandToExecute": "powershell -ExecutionPolicy bypass -File ./PostDeployment.ps1"
+               
                 },
                 "protectedSettings": {
                 }
