@@ -241,7 +241,7 @@
             "apiVersion": "2019-07-01",
             "name": "[concat(variables('vnet_name'), '/', variables('bastion-subnet-name'))]",
             "dependsOn": [
-                "[resourceId('Microsoft.Network/virtualNetworks', variables('vnet_name'))]"
+                "[resourceId('Microsoft.Network/virtualNetworks/subnets', variables('vnet_name'), 'default')]"
             ],
             "properties": {
                 "addressPrefix": "[variables('bastion-subnet-ip-prefix')]",
@@ -447,7 +447,7 @@
                     "fileUris": [
 						"[uri(parameters('PostDeploymentScriptUri'), 'PostDeployment.ps1')]"
                     ],
-					"commandToExecute": "[concat('powershell -ExecutionPolicy bypass -File ./PostDeployment.ps1 -repo ', uri(parameters('PostDeploymentScriptUri'), 'CloudStudioInstallScript.ps1'))]"
+					"commandToExecute": "[concat('powershell -ExecutionPolicy bypass -File ./PostDeployment.ps1 -repo ', uri(parameters('PostDeploymentScriptUri'), 'CloudStudioInstallScript.ps1'), '-account ', parameters('AdminUsername'))]"
                
                 },
                 "protectedSettings": {
