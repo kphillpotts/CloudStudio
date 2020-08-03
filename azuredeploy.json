@@ -49,13 +49,6 @@
                 "description": "Password for the Virtual Machine."
             },
 			"defaultValue": ""
-        },
-        "PostDeploymentScriptUri": {
-            "type": "string",
-            "defaultValue": "https://raw.githubusercontent.com/kphillpotts/CloudStudio/master/",
-            "metadata": {
-                "description": "Public URI location of the PostDeployment.ps1 script to execute after deployment. This installs Chocolatey, Skype, Edge, OBS, ..."
-            }
         }
     },
     "variables": {
@@ -241,7 +234,7 @@
             "apiVersion": "2019-07-01",
             "name": "[concat(variables('vnet_name'), '/', variables('bastion-subnet-name'))]",
             "dependsOn": [
-                "[resourceId('Microsoft.Network/virtualNetworks', variables('vnet_name'))]"
+                "[resourceId('Microsoft.Network/virtualNetworks/subnets', variables('vnet_name'), 'default')]"
             ],
             "properties": {
                 "addressPrefix": "[variables('bastion-subnet-ip-prefix')]",
@@ -424,33 +417,6 @@
                 "typeHandlerVersion": "1.2",
                 "autoUpgradeMinorVersion": true,
                 "settings": {
-                }
-            }
-        },
-        {
-			"name": "[concat(variables('vm_name'),'/PostDeploymentScript')]",
-            "apiVersion": "2019-07-01",
-            "type": "Microsoft.Compute/virtualMachines/extensions",
-            "location": "[variables('location')]",
-            "dependsOn": [
-                "[resourceId('Microsoft.Compute/virtualMachines/extensions', variables('vm_name'), 'GPUDrivers')]"
-            ],
-            "tags": {
-                "displayName": "post-deployment-script"
-            },
-            "properties": {
-                "publisher": "Microsoft.Compute",
-                "type": "CustomScriptExtension",
-                "typeHandlerVersion": "1.10",
-                "autoUpgradeMinorVersion": true,
-                "settings": {
-                    "fileUris": [
-						"[uri(parameters('PostDeploymentScriptUri'), 'PostDeployment.ps1')]"
-                    ],
-					"commandToExecute": "powershell -ExecutionPolicy bypass -File ./PostDeployment.ps1"
-               
-                },
-                "protectedSettings": {
                 }
             }
         }
