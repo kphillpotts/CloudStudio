@@ -4,8 +4,10 @@
 
 Live streaming is a hardware-intensive endeavor. Instead of buying your own hardware, it's better to leverage Azure.
 
-* This repository provides an ARM template to deploy a powerful Windows 10 GPU VM and the network infrastructure required to access it with Azure Bastion.
-* A PowerShell script to install all software required for streaming (OBS, Skype, ...)
+This repository provides...
+
+* ...an ARM template to deploy a powerful Windows 10 GPU VM and the network infrastructure required to access it with Azure Bastion.
+* ...a PowerShell script to install all software required for streaming (OBS, Skype, ...)
 
 We call this combination of streaming related software and Azure compute resources "CloudStudio".
 
