@@ -426,33 +426,6 @@
                 "settings": {
                 }
             }
-        },
-        {
-			"name": "[concat(variables('vm_name'),'/PostDeploymentScript')]",
-            "apiVersion": "2019-07-01",
-            "type": "Microsoft.Compute/virtualMachines/extensions",
-            "location": "[variables('location')]",
-            "dependsOn": [
-                "[resourceId('Microsoft.Compute/virtualMachines/extensions', variables('vm_name'), 'GPUDrivers')]"
-            ],
-            "tags": {
-                "displayName": "post-deployment-script"
-            },
-            "properties": {
-                "publisher": "Microsoft.Compute",
-                "type": "CustomScriptExtension",
-                "typeHandlerVersion": "1.10",
-                "autoUpgradeMinorVersion": true,
-                "settings": {
-                    "fileUris": [
-						"[uri(parameters('PostDeploymentScriptUri'), 'PostDeployment.ps1')]"
-                    ],
-					"commandToExecute": "[concat('powershell -ExecutionPolicy bypass -File ./PostDeployment.ps1 -repo ', uri(parameters('PostDeploymentScriptUri'), 'CloudStudioInstallScript.ps1'), '-account ', parameters('AdminUsername'))]"
-               
-                },
-                "protectedSettings": {
-                }
-            }
         }
     ],
     "outputs": {}
