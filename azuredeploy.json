@@ -49,13 +49,6 @@
                 "description": "Password for the Virtual Machine."
             },
 			"defaultValue": ""
-        },
-        "PostDeploymentScriptUri": {
-            "type": "string",
-            "defaultValue": "https://raw.githubusercontent.com/kphillpotts/CloudStudio/master/",
-            "metadata": {
-                "description": "Public URI location of the PostDeployment.ps1 script to execute after deployment. This installs Chocolatey, Skype, Edge, OBS, ..."
-            }
         }
     },
     "variables": {
