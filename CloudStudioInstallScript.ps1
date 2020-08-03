@@ -56,13 +56,13 @@ $obsndiUrl = "https://github.com/Palakis/obs-ndi/releases/download/4.9.1/obs-ndi
 Write-Host "  Downloading from $obsndiUrl"
 Invoke-WebRequest -Uri $obsndiUrl -OutFile "$PSScriptRoot/ndi.zip" -UseBasicParsing
 Write-Host "  Unzipping plugin content to $PSScriptRoot/ndi_content"
-Expand-Archive -Path "./ndi.zip" -DestinationPath "./ndi_content" -Force
+Expand-Archive -Path "$PSScriptRoot/ndi.zip" -DestinationPath "$PSScriptRoot/ndi_content" -Force
 Write-Host "  Copying extracted content to OBS installation folder at $obsInstallationFolder"
-Copy-Item -Path "./ndi_content/*" -Destination "$obsInstallationFolder" -Recurse -Force
+Copy-Item -Path "$PSScriptRoot/ndi_content/*" -Destination "$obsInstallationFolder" -Recurse -Force
 
 Write-Host "Downloading and installing NDI runtime"
 $ndiRuntimeUrl = "https://ndi.palakis.fr/runtime/ndi-runtime-4.5.1-Windows.exe"
-$ndiRuntimePath = "./ndi-runtime.exe"
+$ndiRuntimePath = "$PSScriptRoot/ndi-runtime.exe"
 Write-Host "  Downloading from $ndiRuntimeUrl"
 Invoke-WebRequest -Uri $ndiRuntimeUrl -OutFile $ndiRuntimePath -UseBasicParsing
 Write-Host "  Running installer silently"
