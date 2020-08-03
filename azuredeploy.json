@@ -447,7 +447,7 @@
                     "fileUris": [
 						"[uri(parameters('PostDeploymentScriptUri'), 'PostDeployment.ps1')]"
                     ],
-					"commandToExecute": "[concat('powershell -ExecutionPolicy bypass -File ./PostDeployment.ps1 -repo ', uri(parameters('PostDeploymentScriptUri'), 'InstallStreamingTools.ps1'))]"
+					"commandToExecute": "[concat('powershell -ExecutionPolicy bypass -File ./PostDeployment.ps1 -repo ', uri(parameters('PostDeploymentScriptUri'), 'CloudStudioInstallScript.ps1'))]"
                
                 },
                 "protectedSettings": {

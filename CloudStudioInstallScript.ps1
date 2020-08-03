@@ -31,9 +31,13 @@ Write-Host "Packages from choco.org were installed"
 # Location of OBS installation.
 $obsInstallationFolder = "C:\Program Files\obs-studio"
 
+Set-Location ~/Desktop
+New-Item CloudStudio -type directory -force
+Set-Location ~/Desktop/CloudStudio 
+
 Write-Host "Downloading and installing Snaz"
 $url = "https://github.com/JimmyAppelt/Snaz/releases/download/1.12.7.0/SnazSetup.exe"
-$outpath = "$PSScriptRoot/SnazSetup.exe"
+$outpath = "./SnazSetup.exe"
 Write-Host "  Downloading from $url"
 Invoke-WebRequest -Uri $url -OutFile $outpath -UseBasicParsing
 Write-Host "  Running installer silently"
@@ -41,7 +45,7 @@ Start-Process -Filepath $outpath -ArgumentList "/verysilent" -Wait
 
 Write-Host "Downloading and installing OBS-WebSocket"
 $obswebsocketUrl = "https://github.com/Palakis/obs-websocket/releases/download/4.8.0/obs-websocket-4.8.0-Windows-Installer.exe"
-$obswebsockPath = "$PSScriptRoot/obs-websocket.exe"
+$obswebsockPath = "./obs-websocket.exe"
 Write-Host "  Downloading from $obswebsocketUrl"
 Invoke-WebRequest -Uri $obswebsocketUrl -OutFile $obswebsockPath -UseBasicParsing
 Write-Host "  Running installer silently"
@@ -52,17 +56,16 @@ $obsndiUrl = "https://github.com/Palakis/obs-ndi/releases/download/4.9.1/obs-ndi
 Write-Host "  Downloading from $obsndiUrl"
 Invoke-WebRequest -Uri $obsndiUrl -OutFile "$PSScriptRoot/ndi.zip" -UseBasicParsing
 Write-Host "  Unzipping plugin content to $PSScriptRoot/ndi_content"
-Expand-Archive -Path "$PSScriptRoot/ndi.zip" -DestinationPath "$PSScriptRoot/ndi_content" -Force
+Expand-Archive -Path "./ndi.zip" -DestinationPath "./ndi_content" -Force
 Write-Host "  Copying extracted content to OBS installation folder at $obsInstallationFolder"
-Copy-Item -Path "$PSScriptRoot/ndi_content/*" -Destination "$obsInstallationFolder" -Recurse -Force
+Copy-Item -Path "./ndi_content/*" -Destination "$obsInstallationFolder" -Recurse -Force
 
 Write-Host "Downloading and installing NDI runtime"
 $ndiRuntimeUrl = "https://ndi.palakis.fr/runtime/ndi-runtime-4.5.1-Windows.exe"
-$ndiRuntimePath = "$PSScriptRoot/ndi-runtime.exe"
+$ndiRuntimePath = "./ndi-runtime.exe"
 Write-Host "  Downloading from $ndiRuntimeUrl"
 Invoke-WebRequest -Uri $ndiRuntimeUrl -OutFile $ndiRuntimePath -UseBasicParsing
 Write-Host "  Running installer silently"
 Start-Process -FilePath $ndiRuntimePath -ArgumentList "/verysilent" -Wait
 
 Write-Host "We are done."
-
