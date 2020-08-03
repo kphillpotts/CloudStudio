@@ -72,6 +72,8 @@ powershell -ExecutionPolicy bypass -file %USERPROFILE%/Desktop/CloudStudioInstal
 ```
 The installation can take up to 20 minutes.
 
+When done, reboot the VM.
+
 ## Deatils about deployed Resources
 
 Here's an overview of the deployed topology:
