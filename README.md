@@ -59,7 +59,7 @@ Software installation is based on a [PowerShell script](CloudStudioInstallscript
 Paste the following command to download the installation script to the VM:
 
 ```
-powershell -command "Invoke-WebRequest -Uri https://raw.githubusercontent.com/Krumelur/CloudStudio/master/CloudStudioInstallScript.ps1 -OutFile ~/Desktop/CloudStudioInstallScript.ps1 -UseBasicParsing"
+powershell -command "Invoke-WebRequest -Uri https://raw.githubusercontent.com/kphillpotts/CloudStudio/master/CloudStudioInstallScript.ps1 -OutFile ~/Desktop/CloudStudioInstallScript.ps1 -UseBasicParsing"
 ```
 
 * Check your Desktop and you should see a file called "CloudStudioInstallScript.ps".
@@ -96,23 +96,12 @@ GPU drivers are installed via NVIDIA extension for Virtual Machines. More detail
 
 * Skype - <https://chocolatey.org/packages/skype>
 * OBS Studio - <https://chocolatey.org/packages/obs-studio>
-* OBS web socket extension
-* OBS NDI plugin
-* Microsoft Edge
-* Snaz
-* NewTek NDI runtime
+* OBS web socket extension - <https://github.com/Palakis/obs-websocket/releases>
+* NewTek NDI Runtime & OBS NDI plugin - <https://github.com/Palakis/obs-ndi/releases>
+* Microsoft Edge - <https://www.microsoft.com/en-us/edge>
+* Snaz - <https://github.com/JimmyAppelt/Snaz/releases>
 
 ## Credits
 
 - This script is originally based on the Azure Quickstart Template <https://azure.microsoft.com/en-us/resources/templates/obs-studio-stream-vm-chocolatey/>
 - Much thanks to Simon Lamb <https://github.com/slamb2k> for adding in the Bastion Components
-
-## TODO
-
-- [x] Script installation of Snaz for countdown timer <https://github.com/JimmyAppelt/Snaz/releases>
-- [x] Script installation of OBS Websocket Plugin <https://github.com/Palakis/obs-websocket/releases>
-- [x] Script installation of OBS-NDI Plugin <https://github.com/Palakis/obs-ndi/releases>
-- [x] Script installation of NDI Runtime <https://ndi.tv/tools/>
-- [x] Update ARM Template to open port for OBS Websocket (with default to 4444)
-- [ ] Guidance page for configuring settings in OBS
-- [ ] Import default scene collection into OBS
