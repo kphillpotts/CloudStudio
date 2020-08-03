@@ -50,11 +50,11 @@
             },
 			"defaultValue": ""
         },
-        "ArtifactsLocation": {
+        "PostDeploymentScriptUri": {
             "type": "string",
             "defaultValue": "https://raw.githubusercontent.com/kphillpotts/CloudStudio/master/",
             "metadata": {
-                "description": "Public URI location of PowerShell Chocolately setup script"
+                "description": "Public URI location of the PostDeployment.ps1 script to execute after deployment. This installs Chocolatey, Skype, Edge, OBS, ..."
             }
         }
     },
@@ -69,14 +69,9 @@
 		"worker_publicIPAddress_name": "[concat('pip-', variables('vm_name'))]",
 		"worker_dnsprefix": "[toLower(parameters('VirtualMachineName'))]",
 		"worker_nsg_name": "[concat('nsg-', variables('vm_name'))]",
-		"setupChocolateyScriptFileName": "ChocoInstall.ps1",
-		"artifactsLocationSasToken" : "",
-		"chocoPackages": "obs-studio;skype",
-        "vmImagePublisher": "MicrosoftWindowsDesktop",
+		"vmImagePublisher": "MicrosoftWindowsDesktop",
         "vmImageOffer": "Windows-10",
         "sku": "rs5-pro",
-        "scriptFolder": ".",
-        "setupScriptLocation": "[uri(parameters('ArtifactsLocation'),concat(variables('setupChocolateyScriptFileName'),variables('artifactsLocationSasToken')))]",
         "bastion-subnet-name": "AzureBastionSubnet",
         "bastion-host-name": "[concat('bastion-', variables('vm_name'))]",
         "public-ip-address-name": "[concat('pip-',variables('bastion-host-name'))]",
@@ -433,7 +428,7 @@
             }
         },
         {
-            "name": "[concat(variables('vm_name'),'/SetupChocolatey')]",
+			"name": "[concat(variables('vm_name'),'/PostDeploymentScript')]",
             "apiVersion": "2019-07-01",
             "type": "Microsoft.Compute/virtualMachines/extensions",
             "location": "[variables('location')]",
@@ -441,7 +436,7 @@
                 "[resourceId('Microsoft.Compute/virtualMachines/extensions', variables('vm_name'), 'GPUDrivers')]"
             ],
             "tags": {
-                "displayName": "config-choco"
+                "displayName": "post-deployment-script"
             },
             "properties": {
                 "publisher": "Microsoft.Compute",
@@ -450,9 +445,10 @@
                 "autoUpgradeMinorVersion": true,
                 "settings": {
                     "fileUris": [
-                        "[variables('setupScriptLocation')]"
+						"[uri(parameters('PostDeploymentScriptUri'), 'PostDeployment.ps1')]"
                     ],
-                    "commandToExecute": "[concat('powershell -ExecutionPolicy bypass -File ', variables('scriptFolder'), '/',variables('setupChocolateyScriptFileName'),' -chocoPackages ',variables('chocoPackages'))]"
+					"commandToExecute": "powershell -ExecutionPolicy bypass -File ./PostDeployment.ps1"
+               
                 },
                 "protectedSettings": {
                 }
