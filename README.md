@@ -70,11 +70,12 @@ Paste the following command start the installation process:
 ```
 powershell -ExecutionPolicy bypass -file %USERPROFILE%/Desktop/CloudStudioInstallScript.ps1
 ```
+
 The installation can take up to 20 minutes.
 
 When done, reboot the VM.
 
-## Deatils about deployed Resources
+## Details about deployed Resources
 
 Here's an overview of the deployed topology:
 
