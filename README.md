@@ -7,13 +7,14 @@ Live streaming is a hardware-intensive endeavor. Instead of buying your own hard
 This repository provides...
 
 * ...an ARM template to deploy a powerful Windows 10 GPU VM and the network infrastructure required to access it with Azure Bastion.
-* ...a PowerShell script to install all software required for streaming (OBS, Skype, ...)
+* ...a PowerShell script to install all software required for streaming.
+* ...additional configuration for installed software.
 
 We call this combination of streaming related software and Azure compute resources "CloudStudio".
 
 To use CloudStudio, follow these instructions:
 
-## Step 1/2: Deploy the VM
+## Step 1/3: Deploy the VM
 
 The repo contains a deployment file [azuredeploy.json](azuredeploy.json) to set up the VM. The easiest way to deploy the VM is by clicking the "Deploy to Azure" button (you can visualize what's being deployed by clicking the "Visualize" button):
 
@@ -49,7 +50,7 @@ When deployment is done, access the VM using Bastion's RDP:
 * Click "Connect" in the top menu bar and select "Bastion"
 * Enter the username and password provided in the ARM template
 
-## Step 2/2: Install software
+## Step 2/3: Install software
 
 Software installation is based on a [PowerShell script](CloudStudioInstallscript.ps1) using Chocolatey package manager and by running other installers silently.
 
@@ -74,7 +75,26 @@ The installation can take up to 20 minutes.
 
 When done, reboot the VM.
 
-## Deatils about deployed Resources
+## Step 3/3: Additional configuration
+
+There are some important configuration settings you will want to make once the software is installed:
+
+### Set a password for OBS Websockets
+
+The [OBS-Websocket](https://github.com/Palakis/obs-websocket) plugin is installed and enabled remote control of OBS on the virtual machine - but by default it does not have a default password.
+
+It is **highly recommended** to protect obs-websocket with a password against unauthorized control. To do this, open the "Websocket server settings" dialog under OBS' "Tools" menu. In the settings dialogs, you can enable or disable authentication and set a password for it.
+
+### Basic OBS Settings
+
+* In OBS go to *File->Settings->Output*
+  * At the top change **Output Mode** to **Advanced**
+  * Under the streaming Tab ensure the **Encoder** is set to **NVIDIA NVENC**
+  * Set the **Bitrate** to an appropriate setting. Recommended **3200 Kbps**
+* In OBS go to *File->Settings->Video*
+  * Set the **Output(Scaled) Resolution** to **1920x1080**
+
+## Details about deployed Resources
 
 Here's an overview of the deployed topology:
 
