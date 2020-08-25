@@ -52,6 +52,8 @@ When deployment is done, access the VM using Bastion's RDP:
 
 ## Step 2/3: Install software
 
+First, you should check and apply Windows Updates in the VM.
+
 Software installation is based on a [PowerShell script](CloudStudioInstallscript.ps1) using Chocolatey package manager and by running other installers silently.
 
 * Login to the VM using an RDP session (Azure Bastion, see above)
