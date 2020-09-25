@@ -68,4 +68,13 @@ Invoke-WebRequest -Uri $ndiRuntimeUrl -OutFile $ndiRuntimePath -UseBasicParsing
 Write-Host "  Running installer silently"
 Start-Process -FilePath $ndiRuntimePath -ArgumentList "/verysilent" -Wait
 
+Write-Host "Downloading and installing Move Transition Plugin"
+$obsmoveUrl = "https://obsproject.com/forum/resources/move-transition.913/version/2713/download?file=60710"
+Write-Host "  Downloading from $obsmoveUrl"
+Invoke-WebRequest -Uri $obsmoveUrl -OutFile "$obsInstallationFolder/move-transition-1.7.8-windows.zip" -UseBasicParsing
+Write-Host "  Unzipping plugin content to $obsInstallationFolder"
+Expand-Archive -Path "$obsInstallationFolder/move-transition-1.7.8-windows.zip" -DestinationPath "$obsInstallationFolder" -Force
+Write-Host "  Running installer silently"
+Start-Process -FilePath "$obsInstallationFolder/move-transition-1.7.8-windows.zip" -ArgumentList "/verysilent" -Wait
+
 Write-Host "We are done."
