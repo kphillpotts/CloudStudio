@@ -75,6 +75,6 @@ Invoke-WebRequest -Uri $obsmoveUrl -OutFile "$obsInstallationFolder/move-transit
 Write-Host "  Unzipping plugin content to $obsInstallationFolder"
 Expand-Archive -Path "$obsInstallationFolder/move-transition-1.7.8-windows.zip" -DestinationPath "$obsInstallationFolder" -Force
 Write-Host "  Running installer silently"
-Start-Process -FilePath "$obsInstallationFolder/move-transition-1.7.8-windows.zip" -ArgumentList "/verysilent" -Wait
+Start-Process -FilePath "$obsInstallationFolder/move-transition-installer.exe" -ArgumentList "/verysilent" -Wait
 
 Write-Host "We are done."
